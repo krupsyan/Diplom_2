@@ -21,16 +21,7 @@ public class UserClient extends RestAssuredClient {
     }
 
     @Step("Create a new user")
-    public ValidatableResponse createUser(UserNoPassword user) {
-        return reqSpec
-                .body(user)
-                .when()
-                .post(REGISTER)
-                .then().log().all();
-    }
-
-    @Step("Create a new user")
-    public ValidatableResponse createUser(UserNoName user) {
+    public ValidatableResponse createUserWithoutPassword(User user) {
         return reqSpec
                 .body(user)
                 .when()
@@ -48,7 +39,7 @@ public class UserClient extends RestAssuredClient {
     }
 
     @Step("Login as a user after email update")
-    public ValidatableResponse loginAfterEmailUpdate(UserEmail userEmail, UserCredentials creds) {
+    public ValidatableResponse loginAfterEmailUpdate(User userEmail, UserCredentials creds) {
         return reqSpec
                 .body(creds)
                 .when()
@@ -59,7 +50,7 @@ public class UserClient extends RestAssuredClient {
     @Step("Edit user details")
         public ValidatableResponse editUser(String accessToken, User user) {
         return reqSpec
-                .header("authorization", accessToken)
+                .header("Authorization", accessToken)
                 .body(user)
                 .when()
                 .patch(USER)
@@ -67,7 +58,7 @@ public class UserClient extends RestAssuredClient {
     }
 
     @Step("Edit user details")
-    public ValidatableResponse editUser(UserEmail userEmail) {
+    public ValidatableResponse editUserEmail(User userEmail) {
         return reqSpec
                 .body(userEmail)
                 .when()
@@ -76,7 +67,7 @@ public class UserClient extends RestAssuredClient {
     }
 
     @Step("Edit user details")
-    public ValidatableResponse editUser(UserPassword userPassword) {
+    public ValidatableResponse editUserPassword(User userPassword) {
         return reqSpec
                 .body(userPassword)
                 .when()
@@ -85,7 +76,7 @@ public class UserClient extends RestAssuredClient {
     }
 
     @Step("Edit user details")
-    public ValidatableResponse editUser(UserName userName) {
+    public ValidatableResponse editUserName(User userName) {
         return reqSpec
                 .body(userName)
                 .when()

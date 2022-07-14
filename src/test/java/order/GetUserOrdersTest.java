@@ -48,6 +48,9 @@ public class GetUserOrdersTest {
                 .path("success");
 
         assertTrue(isOrderReceived);
+
+        userClient.deleteUser(accessToken)
+                .statusCode(SC_ACCEPTED);
     }
 
     @Test

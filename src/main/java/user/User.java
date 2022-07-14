@@ -24,7 +24,7 @@ public class User {
         return new User(email, password, name);
     }
 
-    @Step("Generate a new user with random password and firstName")
+    @Step("Generate new password and name for current user")
     public static User getRandomNamePassword(User user) {
         String email = user.getEmail();
         String password = RandomStringUtils.randomAlphanumeric(12);
@@ -32,28 +32,71 @@ public class User {
         return new User(email, password, name);
     }
 
-    @Step("Generate a new user without login with all fields random")
-    public static User getRandomNoEmail() {
+    @Step("Generate a new user without email with random password and name")
+    public static User getRandomPasswordName() {
         String password = RandomStringUtils.randomAlphanumeric(12);
         String name = RandomStringUtils.randomAlphanumeric(12);
-        return new User(password, name);
+        return new User(password, name, 1);
     }
 
-    @Step("Generate a new user with random password and firstName")
-    public static User getRandomPasswordFirstname(User user) {
-        String email = user.getEmail();
+    @Step("Generate a new user without name with random email and password")
+    public static User getRandomEmailPassword() {
+        String email = RandomStringUtils.randomAlphanumeric(6) + "@" + RandomStringUtils.randomAlphanumeric(6) + ".ru";
         String password = RandomStringUtils.randomAlphanumeric(12);
+        return new User(email, password, 3);
+    }
+
+    @Step("Generate a new user without password with random email and name")
+    public static User getRandomNoPassword() {
+        String email = RandomStringUtils.randomAlphanumeric(6) + "@" + RandomStringUtils.randomAlphanumeric(6) + ".ru";
         String name = RandomStringUtils.randomAlphanumeric(12);
-        return new User(email, password, name);
+        return new User(email, name, 2);
     }
 
-    public User(String password, String firstName) {
-        this.name = firstName;
-        this.password = password;
+    @Step("Generate a new user email")
+    public static User getRandomEmail() {
+        String email = RandomStringUtils.randomAlphanumeric(6) + "@" + RandomStringUtils.randomAlphanumeric(6) + ".ru";
+
+        return new User(email, 1);
     }
 
-    public User(String email) {
-        this.email = email;
+    @Step("Generate a new user name")
+    public static User getRandomName() {
+        String name = RandomStringUtils.randomAlphanumeric(12);
+
+        return new User(name, 3);
+    }
+
+    @Step("Generate a new user password")
+    public static User getRandomPassword() {
+        String password = RandomStringUtils.randomAlphanumeric(12);
+
+        return new User(password, 2);
+    }
+
+    public User(String value1, String value2, int missingType) {
+        if (missingType == 1) {
+            this.password = value1;
+            this.name = value2;
+        }else if(missingType == 2){
+            this.email = value1;
+            this.name = value2;
+        }else if(missingType == 3){
+            this.email = value1;
+            this.password = value2;
+        }
+    }
+
+    public User(String value, int type) {
+
+        if(type == 1){
+            this.email = value;
+        }else if(type == 2){
+            this.password = value;
+        }
+        else if(type == 3){
+            this.name = value;
+        }
     }
 
 }

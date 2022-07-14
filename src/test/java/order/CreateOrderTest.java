@@ -1,7 +1,7 @@
 package order;
 
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.ValidatableResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import user.User;
@@ -14,17 +14,27 @@ public class CreateOrderTest {
     private OrderClient orderClient;
     private UserClient userClient;
 
+    private String accessToken;
+
     @Before
     public void setup() {
         orderClient = new OrderClient();
         userClient = new UserClient();
     }
 
+    @After
+    public void shutDown() throws InterruptedException {
+        userClient.deleteUser(accessToken)
+                .statusCode(SC_ACCEPTED);
+
+        Thread.sleep(1000);
+    }
+
     @Test
     @DisplayName("Check that a new order can be created with authorization")
     public void createOrderWithAuthSuccess() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
@@ -37,8 +47,6 @@ public class CreateOrderTest {
                 .path("success");
 
         assertTrue(isOrderCreated);
-        userClient.deleteUser(accessToken)
-                .statusCode(SC_ACCEPTED);
     }
 
     @Test
@@ -58,7 +66,7 @@ public class CreateOrderTest {
     @DisplayName("Check that a new order without ingredients cannot be created")
     public void createOrderWithoutIngredientsError() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
@@ -71,16 +79,13 @@ public class CreateOrderTest {
                 .path("message");
 
         assertEquals("Ingredient ids must be provided", emptyIngredientsError);
-
-        userClient.deleteUser(accessToken)
-                .statusCode(SC_ACCEPTED);
     }
 
     @Test
     @DisplayName("Check that a new order with incorrect ingredient hash cannot be created")
     public void createOrderIncorrectIngredientHashError() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
@@ -89,8 +94,5 @@ public class CreateOrderTest {
         orderClient.createOrderIncorrectIngredientHash(accessToken)
                 .assertThat()
                 .statusCode(SC_INTERNAL_SERVER_ERROR);
-
-        userClient.deleteUser(accessToken)
-                .statusCode(SC_ACCEPTED);
     }
 }

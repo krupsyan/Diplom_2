@@ -12,22 +12,27 @@ public class LoginTest {
 
     private UserClient userClient;
 
+    private String accessToken;
+
     @Before
     public void setup() {
         userClient = new UserClient();
     }
 
-    //Timeout to avoid error 429
     @After
-    public void waitOneSec() throws InterruptedException {
+    public void shutDown() throws InterruptedException{
+        userClient.deleteUser(accessToken)
+                .statusCode(SC_ACCEPTED);
+
+        //Timeout to avoid error 429
         Thread.sleep(1000);
-    };
+    }
 
     @Test
     @DisplayName("Check that an existing user can login")
     public void loginUserSuccess() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
@@ -41,21 +46,19 @@ public class LoginTest {
                 .path("success");
 
         assertTrue(isSuccess);
-        userClient.deleteUser(accessToken)
-                .statusCode(SC_ACCEPTED);
     }
 
     @Test
     @DisplayName("Check that a user can't login with incorrect password")
     public void loginUserIncorrectPassword() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
                 .path("accessToken");
 
-        User courierIncorrectPassword = User.getRandomPasswordFirstname(user);
+        User courierIncorrectPassword = User.getRandomNamePassword(user);
         UserCredentials incorrectCreds =  UserCredentials.from(courierIncorrectPassword);
         String incorrectPasswordError = userClient.login(incorrectCreds)
                 .assertThat()
@@ -64,7 +67,5 @@ public class LoginTest {
                 .path("message");
 
         assertEquals("email or password are incorrect", incorrectPasswordError);
-        userClient.deleteUser(accessToken)
-                .statusCode(SC_ACCEPTED);
     }
 }

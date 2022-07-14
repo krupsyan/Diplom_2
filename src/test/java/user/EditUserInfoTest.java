@@ -11,6 +11,7 @@ import static org.junit.Assert.*;
 public class EditUserInfoTest {
 
     private UserClient userClient;
+    private String accessToken;
 
     @Before
     public void setup() {
@@ -19,21 +20,23 @@ public class EditUserInfoTest {
 
     //Timeout to avoid error 429
     @After
-    public void waitOneSec() throws InterruptedException {
+    public void shutDown() throws InterruptedException{
+        userClient.deleteUser(accessToken)
+                .statusCode(SC_ACCEPTED);
+
+        //Timeout to avoid error 429
         Thread.sleep(1000);
-    };
+    }
 
     @Test
     @DisplayName("Check editing user details")
     public void editUserSuccess() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
                 .path("accessToken");
-
-        user = User.getRandom();
 
         boolean areDetailsChanged = userClient.editUser(accessToken, user)
                 .assertThat()
@@ -48,15 +51,15 @@ public class EditUserInfoTest {
     @DisplayName("Check that user email can't be edited without authorization")
     public void editUserEmailNoAuth() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
                 .path("accessToken");
 
-        UserEmail userEmail = UserEmail.getRandomEmail();
+        User userEmail = User.getRandomEmail();
 
-        String errorMessage = userClient.editUser(userEmail)
+        String errorMessage = userClient.editUserEmail(userEmail)
                 .assertThat()
                 .statusCode(SC_UNAUTHORIZED)
                 .extract()
@@ -69,47 +72,41 @@ public class EditUserInfoTest {
     @DisplayName("Check that user name can't be edited without authorization")
     public void editUserNameNoAuth() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
                 .path("accessToken");
 
-        UserName userName = UserName.getRandomName();
+        User userName = User.getRandomName();
 
-        String errorMessage = userClient.editUser(userName)
+        String errorMessage = userClient.editUserName(userName)
                 .assertThat()
                 .statusCode(SC_UNAUTHORIZED)
                 .extract()
                 .path("message");
 
         assertEquals("You should be authorised", errorMessage);
-
-        userClient.deleteUser(accessToken)
-                .statusCode(SC_ACCEPTED);
     }
 
     @Test
     @DisplayName("Check that user password can't be edited without authorization")
     public void editUserPasswordNoAuth() {
         User user = User.getRandom();
-        String accessToken = userClient.createUser(user)
+        accessToken = userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_OK)
                 .extract()
                 .path("accessToken");
 
-        UserPassword userPassword = UserPassword.getRandomPassword();
+        User userPassword = User.getRandomPassword();
 
-        String errorMessage = userClient.editUser(userPassword)
+        String errorMessage = userClient.editUserPassword(userPassword)
                 .assertThat()
                 .statusCode(SC_UNAUTHORIZED)
                 .extract()
                 .path("message");
 
         assertEquals("You should be authorised", errorMessage);
-
-        userClient.deleteUser(accessToken)
-                .statusCode(SC_ACCEPTED);
     }
 }
